@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="id"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <title>Quiz Elegant Premium</title> 
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@300;400;500&display=swap');
+    
+    :root {
+      --primary: #2a2d57;
+      --secondary: #4a4e8c;
+      --accent: #d4af37;
+      --light: #f8f8f8;
+      --dark: #1a1a2e;
+      --correct: #4caf50;
+      --incorrect: #e53935;
+    }
+    
+    body {
+      background: linear-gradient(135deg, var(--primary), var(--dark));
+      font-family: 'Montserrat', sans-serif;
+      color: var(--light);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 1000px;
+    }
+    
+    #quiz-container {
+      background: rgba(42, 45, 87, 0.9);
+      width: 90%;
+      max-width: 700px;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.3),
+                  0 0 0 1px rgba(212, 175, 55, 0.2);
+      padding: 40px;
+      backdrop-filter: blur(8px);
+      transform-style: preserve-3d;
+      transition: all 0.5s ease;
+    }
+    
+    h1 {
+      font-family: 'Playfair Display', serif;
+      text-align: center;
+      margin: 0 0 30px 0;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--accent);
+      font-size: 2.2rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .question-card {
+      background: linear-gradient(145deg, rgba(74,78,140,0.8), rgba(42,45,87,0.9));
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      transform-style: preserve-3d;
+      transition: transform 0.8s ease, box-shadow 0.8s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .question-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    
+    #question {
+      font-size: 1.3rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+    
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    
+    .option-item {
+      position: relative;
+      transform-style: preserve-3d;
+    }
+    
+    label {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 16px 20px;
+      border-radius: 8px;
+      display: block;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      backdrop-filter: blur(5px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    label:hover {
+      background: rgba(212, 175, 55, 0.1);
+      border-color: var(--accent);
+    }
+    
+    label::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+      transform-origin: bottom;
+    }
+    
+    input[type="radio"] {
+      display: none;
+    }
+    
+    input[type="radio"]:checked + label {
+      background: rgba(212, 175, 55, 0.15);
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+    }
+    
+    input[type="radio"]:checked + label::before {
+      transform: scaleY(1);
+    }
+    
+    #controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 30px;
+    }
+    
+    #music-control-btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    
+    #music-control-btn:hover {
+      background: rgba(212, 175, 55, 0.1);
+      transform: scale(1.1);
+    }
+    
+    #submit-btn {
+      background: linear-gradient(135deg, var(--accent), #c9a227);
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-family: 'Playfair Display', serif;
+      color: var(--dark);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    
+    #submit-btn:disabled {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.5);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    
+    #submit-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+    }
+    
+    #result {
+      margin-top: 25px;
+      font-size: 1.2rem;
+      text-align: center;
+      min-height: 2em;
+      font-weight: 500;
+      padding: 15px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    
+    .correct {
+      background: rgba(76, 175, 80, 0.15);
+      color: var(--correct);
+      border: 1px solid var(--correct);
+    }
+    
+    .incorrect {
+      background: rgba(229, 57, 53, 0.15);
+      color: var(--incorrect);
+      border: 1px solid var(--incorrect);
+    }
+    
+    #scoreboard {
+      margin-top: 25px;
+      background: rgba(0,0,0,0.2);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    
+    #restart-btn {
+      background: linear-gradient(135deg, #4a4e8c, var(--primary));
+      border: none;
+      width: 100%;
+      padding: 16px;
+      font-size: 1.1rem;
+      font-family: 'Playfair Display', serif;
+      color: var(--light);
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 25px;
+      display: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+    }
+    
+    #restart-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    
+    footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-weight: 300;
+    }
+    
+    .progress-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #f1c40f);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    
+    /* 3D Card Flip Animation */
+    .card-flip {
+      animation: cardFlip 1s ease;
+    }
+    
+    @keyframes cardFlip {
+      0% { transform: rotateY(0deg); }
+      50% { transform: rotateY(90deg); }
+      100% { transform: rotateY(0deg); }
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      #quiz-container {
+        padding: 25px;
+      }
+      
+      h1 {
+        font-size: 1.8rem;
+      }
+      
+      .question-card {
+        padding: 20px;
+      }
+    }
+  </style> 
+ </head> 
+ <body> 
+  <main id="quiz-container" role="main" aria-label="Quiz Elegant Premium"> 
+   <h1>Quiz umum</h1> 
+   <div class="progress-container"> 
+    <div class="progress-bar" id="progress-bar"></div> 
+   </div> 
+   <div class="question-card" id="question-card"> 
+    <p id="question"></p> 
+    <ul class="options" role="radiogroup" id="options-list"></ul> 
+   </div> 
+   <div id="result" aria-atomic="true"></div> 
+   <div id="controls"> <button id="music-control-btn" aria-label="Toggle Music" title="Toggle Music">🎵</button> <button id="submit-btn" disabled>Submit Jawaban</button> 
+   </div> 
+   <div id="scoreboard" aria-live="polite"></div> <button id="restart-btn">Mulai Ulang Quiz</button> 
+   <footer>
+     Quiz interaktif 
+   </footer> <!-- Audio elements --> 
+   <audio id="background-music" loop> 
+    <source src="https://www.bensound.com/bensound-music/bensound-creativeminds.mp3" type="audio/mpeg"> 
+   </audio> 
+   <audio id="correct-sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio> 
+   <audio id="incorrect-sound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio> 
+  </main> 
+  <script>
+    const questions = [
+    // Pengetahuan Bilingual (50 Soal)
+    {question: "Apa terjemahan kata 'book' dalam bahasa Indonesia?", options: ["Buku", "Meja", "Kursi", "Pena"], answer: "Buku"},
+    {question: "Apa arti kata 'rumah' dalam bahasa Inggris?", options: ["House", "School", "Car", "Tree"], answer: "House"},
+    {question: "Kata 'fast' dalam bahasa Inggris ber  berarti apa dalam bahasa Indonesia?", options: ["Cepat", "Lambat", "Tinggi", "Pendiam"], answer: "Cepat"},
+    {question: "Apa terjemahan 'I am happy' ke dalam bahasa Indonesia?", options: ["Saya senang", "Saya sedih", "Saya lapar", "Saya lelah"], answer: "Saya senang"},
+    {question: "Kata 'makan' dalam bahasa Inggris adalah?", options: ["Eat", "Drink", "Sleep", "Walk"], answer: "Eat"},
+    {question: "Apa arti 'beautiful' dalam bahasa Indonesia?", options: ["Cantik", "Jelek", "Kecil", "Besar"], answer: "Cantik"},
+    {question: "Terjemahkan 'Saya suka membaca' ke dalam bahasa Inggris.", options: ["I like to read", "I like to eat", "I like to sleep", "I like to run"], answer: "I like to read"},
+    {question: "Kata 'car' dalam bahasa Indonesia berarti?", options: ["Mobil", "Sepeda", "Bus", "Kereta"], answer: "Mobil"},
+    {question: "Apa terjemahan 'school' ke dalam bahasa Indonesia?", options: ["Sekolah", "Rumah", "Taman", "Kantor"], answer: "Sekolah"},
+    {question: "Kata 'minum' dalam bahasa Inggris adalah?", options: ["Drink", "Eat", "Read", "Write"], answer: "Drink"},
+    {question: "Apa arti 'big' dalam bahasa Indonesia?", options: ["Besar", "Kecil", "Panjang", "Pendek"], answer: "Besar"},
+    {question: "Terjemahkan 'We are friends' ke dalam bahasa Indonesia.", options: ["Kami teman", "Kami musuh", "Kami saudara", "Kami guru"], answer: "Kami teman"},
+    {question: "Kata 'tree' dalam bahasa Indonesia berarti?", options: ["Pohon", "Bunga", "Rumput", "Batu"], answer: "Pohon"},
+    {question: "Apa terjemahan 'I am tired' ke dalam bahasa Indonesia?", options: ["Saya lelah", "Saya senang", "Saya lapar", "Saya marah"], answer: "Saya lelah"},
+    {question: "Kata 'write' dalam bahasa Indonesia adalah?", options: ["Tulis", "Baca", "Lari", "Duduk"], answer: "Tulis"},
+    {question: "Apa arti 'small' dalam bahasa Indonesia?", options: ["Kecil", "Besar", "Tinggi", "Rendah"], answer: "Kecil"},
+    {question: "Terjemahkan 'She is a teacher' ke dalam bahasa Indonesia.", options: ["Dia guru", "Dia dokter", "Dia polisi", "Dia perawat"], answer: "Dia guru"},
+    {question: "Kata 'water' dalam bahasa Indonesia berarti?", options: ["Air", "Api", "Angin", "Tanah"], answer: "Air"},
+    {question: "Apa terjemahan 'I love you' ke dalam bahasa Indonesia?", options: ["Aku mencintaimu", "Aku membencimu", "Aku merindukanmu", "Aku melupakamu"], answer: "Aku mencintaimu"},
+    {question: "Kata 'sing' dalam bahasa Indonesia adalah?", options: ["Nyanyi", "Tari", "Lukis", "Main"], answer: "Nyanyi"},
+    {question: "Apa arti 'happy' dalam bahasa Indonesia?", options: ["Senang", "Sedih", "Marah", "Takut"], answer: "Senang"},
+    {question: "Terjemahkan 'He is running' ke dalam bahasa Indonesia.", options: ["Dia berlari", "Dia berjalan", "Dia duduk", "Dia tidur"], answer: "Dia berlari"},
+    {question: "Kata 'dog' dalam bahasa Indonesia berarti?", options: ["Anjing", "Kucing", "Burung", "Ikan"], answer: "Anjing"},
+    {question: "Apa terjemahan 'Please wait' ke dalam bahasa Indonesia?", options: ["Silakan tunggu", "Silakan pergi", "Silakan makan", "Silakan tidur"], answer: "Silakan tunggu"},
+    {question: "Kata 'read' dalam bahasa Indonesia adalah?", options: ["Baca", "Tulis", "Lari", "Duduk"], answer: "Baca"},
+    {question: "Apa arti 'cold' dalam bahasa Indonesia?", options: ["Dingin", "Panas", "Lembap", "Kering"], answer: "Dingin"},
+    {question: "Terjemahkan 'They are playing' ke dalam bahasa Indonesia.", options: ["Mereka bermain", "Mereka belajar", "Mereka tidur", "Mereka makan"], answer: "Mereka bermain"},
+    {question: "Kata 'cat' dalam bahasa Indonesia berarti?", options: ["Kucing", "Anjing", "Burung", "Ikan"], answer: "Kucing"},
+    {question: "Apa terjemahan 'Good morning' ke dalam bahasa Indonesia?", options: ["Selamat pagi", "Selamat malam", "Selamat siang", "Selamat sore"], answer: "Selamat pagi"},
+    {question: "Kata 'sleep' dalam bahasa Indonesia adalah?", options: ["Tidur", "Bangun", "Lari", "Makan"], answer: "Tidur"},
+    {question: "Apa arti 'hot' dalam bahasa Indonesia?", options: ["Panas", "Dingin", "Lembap", "Kering"], answer: "Panas"},
+    {question: "Terjemahkan 'I am hungry' ke dalam bahasa Indonesia.", options: ["Saya lapar", "Saya kenyang", "Saya lelah", "Saya senang"], answer: "Saya lapar"},
+    {question: "Kata 'bird' dalam bahasa Indonesia berarti?", options: ["Burung", "Ikan", "Kucing", "Anjing"], answer: "Burung"},
+    {question: "Apa terjemahan 'Thank you' ke dalam bahasa Indonesia?", options: ["Terima kasih", "Maaf", "Tolong", "Selamat"], answer: "Terima kasih"},
+    {question: "Kata 'walk' dalam bahasa Indonesia adalah?", options: ["Jalan", "Lari", "Duduk", "Berdiri"], answer: "Jalan"},
+    {question: "Apa arti 'sad' dalam bahasa Indonesia?", options: ["Sedih", "Senang", "Marah", "Takut"], answer: "Sedih"},
+    {question: "Terjemahkan 'We are studying' ke dalam bahasa Indonesia.", options: ["Kami belajar", "Kami bermain", "Kami makan", "Kami tidur"], answer: "Kami belajar"},
+    {question: "Kata 'fish' dalam bahasa Indonesia berarti?", options: ["Ikan", "Burung", "Kucing", "Anjing"], answer: "Ikan"},
+    {question: "Apa terjemahan 'Good night' ke dalam bahasa Indonesia?", options: ["Selamat malam", "Selamat pagi", "Selamat siang", "Selamat sore"], answer: "Selamat malam"},
+    {question: "Kata 'run' dalam bahasa Indonesia adalah?", options: ["Lari", "Jalan", "Duduk", "Berdiri"], answer: "Lari"},
+    {question: "Apa arti 'tall' dalam bahasa Indonesia?", options: ["Tinggi", "Pendek", "Besar", "Kecil"], answer: "Tinggi"},
+    {question: "Terjemahkan 'She is singing' ke dalam bahasa Indonesia.", options: ["Dia bernyanyi", "Dia menari", "Dia melukis", "Dia menulis"], answer: "Dia bernyanyi"},
+    {question: "Kata 'flower' dalam bahasa Indonesia berarti?", options: ["Bunga", "Pohon", "Rumput", "Batu"], answer: "Bunga"},
+    {question: "Apa terjemahan 'Please help' ke dalam bahasa Indonesia?", options: ["Tolong bantu", "Tolong pergi", "Tolong makan", "Tolong tidur"], answer: "Tolong bantu"},
+    {question: "Kata 'play' dalam bahasa Indonesia adalah?", options: ["Main", "Baca", "Tulis", "Lari"], answer: "Main"},
+    {question: "Apa arti 'short' dalam bahasa Indonesia?", options: ["Pendek", "Panjang", "Tinggi", "Rendah"], answer: "Pendek"},
+    {question: "Terjemahkan 'He is eating' ke dalam bahasa Indonesia.", options: ["Dia makan", "Dia minum", "Dia tidur", "Dia berlari"], answer: "Dia makan"},
+    {question: "Kata 'sun' dalam bahasa Indonesia berarti?", options: ["Matahari", "Bulan", "Bintang", "Awan"], answer: "Matahari"},
+    {question: "Apa terjemahan 'See you later' ke dalam bahasa Indonesia?", options: ["Sampai jumpa", "Selamat tinggal", "Terima kasih", "Maaf"], answer: "Sampai jumpa"},
+    {question: "Kata 'dance' dalam bahasa Indonesia adalah?", options: ["Tari", "Nyanyi", "Lukis", "Main"], answer: "Tari"},
+
+    // Pengetahuan Umum (50 Soal)
+    {question: "Apa ibu kota Provinsi Jawa Barat?", options: ["Bandung", "Jakarta", "Surabaya", "Medan"], answer: "Bandung"},
+    {question: "Siapa presiden pertama Indonesia?", options: ["Soekarno", "Soeharto", "Jokowi", "Megawati"], answer: "Soekarno"},
+    {question: "Gunung tertinggi di Indonesia adalah?", options: ["Puncak Jaya", "Rinjani", "Semeru", "Kerinci"], answer: "Puncak Jaya"},
+    {question: "Apa ibu kota negara Jepang?", options: ["Tokyo", "Osaka", "Kyoto", "Hiroshima"], answer: "Tokyo"},
+    {question: "Mata uang negara Indonesia adalah?", options: ["Rupiah", "Dollar", "Yen", "Euro"], answer: "Rupiah"},
+    {question: "Benua terbesar di dunia adalah?", options: ["Asia", "Afrika", "Eropa", "Australia"], answer: "Asia"},
+    {question: "Siapa penulis novel 'Laskar Pelangi'?", options: ["Andrea Hirata", "Pramoedya Ananta Toer", "Ahmad Fuadi", "Dewi Lestari"], answer: "Andrea Hirata"},
+    {question: "Apa nama sungai terpanjang di dunia?", options: ["Sungai Nil", "Sungai Amazon", "Sungai Mississippi", "Sungai Yangtze"], answer: "Sungai Nil"},
+    {question: "Hari kemerdekaan Indonesia diperingati setiap tanggal?", options: ["17 Agustus", "20 Mei", "28 Oktober", "10 November"], answer: "17 Agustus"},
+    {question: "Apa ibu kota Provinsi Bali?", options: ["Denpasar", "Gianyar", "Kuta", "Ubud"], answer: "Denpasar"},
+    {question: "Planet terbesar di tata surya kita adalah?", options: ["Jupiter", "Saturnus", "Mars", "Bumi"], answer: "Jupiter"},
+    {question: "Apa nama tarian tradisional dari Bali?", options: ["Kecak", "Saman", "Jaipong", "Piring"], answer: "Kecak"},
+    {question: "Siapa ilmuwan yang menemukan teori relativitas?", options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Thomas Edison"], answer: "Albert Einstein"},
+    {question: "Apa ibu kota negara Brazil?", options: ["Brasilia", "Rio de Janeiro", "Sao Paulo", "Salvador"], answer: "Brasilia"},
+    {question: "Hewan yang merupakan simbol negara Australia adalah?", options: ["Kanguru", "Koala", "Emu", "Wombat"], answer: "Kanguru"},
+    {question: "Apa nama samudra terbesar di dunia?", options: ["Pasifik", "Atlantik", "Hindia", "Arktik"], answer: "Pasifik"},
+    {question: "Lagu kebangsaan Indonesia adalah?", options: ["Indonesia Raya", "Garuda Pancasila", "Hari Merdeka", "Bagimu Negeri"], answer: "Indonesia Raya"},
+    {question: "Apa ibu kota Provinsi Sumatera Utara?", options: ["Medan", "Palembang", "Padang", "Banda Aceh"], answer: "Medan"},
+    {question: "Siapa pelukis terkenal yang melukis 'Mona Lisa'?", options: ["Leonardo da Vinci", "Vincent van Gogh", "Pablo Picasso", "Michelangelo"], answer: "Leonardo da Vinci"},
+    {question: "Apa nama pulau terbesar di Indonesia?", options: ["Kalimantan", "Sumatera", "Jawa", "Sulawesi"], answer: "Kalimantan"},
+    {question: "Mata uang negara Jepang adalah?", options: ["Yen", "Won", "Dollar", "Euro"], answer: "Yen"},
+    {question: "Apa ibu kota negara Inggris?", options: ["London", "Manchester", "Liverpool", "Birmingham"], answer: "London"},
+    {question: "Hari Pancasila diperingati setiap tanggal?", options: ["1 Juni", "17 Agustus", "28 Oktober", "20 Mei"], answer: "1 Juni"},
+    {question: "Apa nama candi Buddha terbesar di Indonesia?", options: ["Borobudur", "Prambanan", "Mendut", "Sewu"], answer: "Borobudur"},
+    {question: "Benua terkecil di dunia adalah?", options: ["Australia", "Antartika", "Eropa", "Asia"], answer: "Australia"},
+    {question: "Siapa presiden kedua Indonesia?", options: ["Soeharto", "Soekarno", "Jokowi", "Habibie"], answer: "Soeharto"},
+    {question: "Apa ibu kota Provinsi Jawa Tengah?", options: ["Semarang", "Surakarta", "Yogyakarta", "Magelang"], answer: "Semarang"},
+    {question: "Gunung tertinggi di dunia adalah?", options: ["Everest", "K2", "Kangchenjunga", "Lhotse"], answer: "Everest"},
+    {question: "Apa nama alat musik tradisional dari Jawa?", options: ["Gamelan", "Sasando", "Kolintang", "Angklung"], answer: "Gamelan"},
+    {question: "Mata uang negara Amerika Serikat adalah?", options: ["Dollar", "Euro", "Pound", "Yen"], answer: "Dollar"},
+    {question: "Apa ibu kota negara Prancis?", options: ["Paris", "Lyon", "Marseille", "Nice"], answer: "Paris"},
+    {question: "Siapa penemu lampu pijar?", options: ["Thomas Edison", "Alexander Graham Bell", "Nikola Tesla", "Albert Einstein"], answer: "Thomas Edison"},
+    {question: "Apa nama pulau yang terkenal dengan komodo?", options: ["Komodo", "Bali", "Lombok", "Sumba"], answer: "Komodo"},
+    {question: "Apa ibu kota Provinsi Aceh?", options: ["Banda Aceh", "Medan", "Palembang", "Padang"], answer: "Banda Aceh"},
+    {question: "Planet yang dikenal sebagai planet merah adalah?", options: ["Mars", "Jupiter", "Venus", "Merkurius"], answer: "Mars"},
+    {question: "Apa nama tarian tradisional dari Aceh?", options: ["Saman", "Kecak", "Jaipong", "Piring"], answer: "Saman"},
+    {question: "Siapa penulis 'Dilan 1990'?", options: ["Pidi Baiq", "Andrea Hirata", "Ahmad Fuadi", "Dewi Lestari"], answer: "Pidi Baiq"},
+    {question: "Apa ibu kota negara Australia?", options: ["Canberra", "Sydney", "Melbourne", "Brisbane"], answer: "Canberra"},
+    {question: "Hewan yang merupakan simbol negara Indonesia adalah?", options: ["Garuda", "Harimau", "Badak", "Gajah"], answer: "Garuda"},
+    {question: "Apa nama sungai terpanjang di Indonesia?", options: ["Kapuas", "Mahakam", "Barito", "Musi"], answer: "Kapuas"},
+    {question: "Mata uang negara Inggris adalah?", options: ["Pound", "Euro", "Dollar", "Yen"], answer: "Pound"},
+    {question: "Apa ibu kota Provinsi Sulawesi Selatan?", options: ["Makassar", "Manado", "Palu", "Kendari"], answer: "Makassar"},
+    {question: "Siapa ilmuwan yang menemukan hukum gravitasi?", options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Nikola Tesla"], answer: "Isaac Newton"},
+    {question: "Apa nama candi Hindu terbesar di Indonesia?", options: ["Prambanan", "Borobudur", "Mendut", "Sewu"], answer: "Prambanan"},
+    {question: "Apa ibu kota negara India?", options: ["New Delhi", "Mumbai", "Kolkata", "Chennai"], answer: "New Delhi"},
+    {question: "Hari Sumpah Pemuda diperingati setiap tanggal?", options: ["28 Oktober", "17 Agustus", "1 Juni", "20 Mei"], answer: "28 Oktober"},
+    {question: "Apa nama alat musik tradisional dari NTT?", options: ["Sasando", "Gamelan", "Angklung", "Kolintang"], answer: "Sasando"},
+    {question: "Apa ibu kota Provinsi Riau?", options: ["Pekanbaru", "Dumai", "Siak", "Tanjungpinang"], answer: "Pekanbaru"},
+    {question: "Planet terkecil di tata surya kita adalah?", options: ["Merkurius", "Mars", "Venus", "Pluto"], answer: "Merkurius"},
+    {question: "Apa nama tarian tradisional dari Jawa Barat?", options: ["Jaipong", "Saman", "Kecak", "Piring"], answer: "Jaipong"},
+
+    // Pengetahuan Kognitif (50 Soal)
+    {question: "Jika semua kucing adalah mamalia, dan Tom adalah kucing, maka Tom adalah?", options: ["Mamalia", "Reptil", "Burung", "Ikan"], answer: "Mamalia"},
+    {question: "Urutan bilangan: 2, 4, 6, 8, ___. Bilangan berikutnya adalah?", options: ["10", "12", "14", "16"], answer: "10"},
+    {question: "Jika A = 1, B = 2, C = 3, maka kata 'CAB' bernilai?", options: ["6", "7", "8", "9"], answer: "6"},
+    {question: "Jika hari ini Senin, lusa adalah hari?", options: ["Rabu", "Selasa", "Kamis", "Jumat"], answer: "Rabu"},
+    {question: "Semua burung bisa terbang. Bebek adalah burung. Maka bebek bisa?", options: ["Terbang", "Berenang", "Berlari", "Melompat"], answer: "Terbang"},
+    {question: "Urutan bilangan: 1, 3, 6, 10, ___. Bilangan berikutnya adalah?", options: ["15", "16", "17", "18"], answer: "15"},
+    {question: "Jika 2 + 3 = 10, 4 + 5 = 36, maka 3 + 4 = ?", options: ["21", "22", "23", "24"], answer: "21"},
+    {question: "Jika apel lebih mahal dari jeruk, dan jeruk lebih mahal dari mangga, maka yang termurah adalah?", options: ["Mangga", "Jeruk", "Apel", "Semua sama"], answer: "Mangga"},
+    {question: "Jika 1 = A, 2 = B, 3 = C, maka 321 = ?", options: ["CBA", "ABC", "BCA", "CAB"], answer: "CBA"},
+    {question: "Jika hari ini Rabu, kemarin adalah hari?", options: ["Selasa", "Senin", "Kamis", "Jumat"], answer: "Selasa"},
+    {question: "Urutan bilangan: 5, 10, 20, 40, ___. Bilangan berikutnya adalah?", options: ["80", "85", "90", "100"], answer: "80"},
+    {question: "Jika semua anjing menggonggong, dan Rex adalah anjing, maka Rex?", options: ["Menggonggong", "Mengaum", "Menyanyi", "Berenang"], answer: "Menggonggong"},
+    {question: "Jika 3 buah apel sama dengan 2 buah jeruk, berapa jeruk yang setara dengan 6 apel?", options: ["4", "5", "6", "7"], answer: "4"},
+    {question: "Urutan bilangan: 1, 4, 9, 16, ___. Bilangan berikutnya adalah?", options: ["25", "26", "27", "28"], answer: "25"},
+    {question: "Jika A = 2, B = 4, C = 6, maka nilai 'BAC' adalah?", options: ["12", "14", "16", "18"], answer: "12"},
+    {question: "Jika hari ini Jumat, besok lusa adalah hari?", options: ["Minggu", "Sabtu", "Senin", "Selasa"], answer: "Minggu"},
+    {question: "Jika semua ikan hidup di air, dan nemo adalah ikan, maka nemo hidup di?", options: ["Air", "Darat", "Udara", "Pohon"], answer: "Air"},
+    {question: "Urutan bilangan: 2, 5, 11, 23, ___. Bilangan berikutnya adalah?", options: ["47", "48", "49", "50"], answer: "47"},
+    {question: "Jika 5 + 2 = 14, 6 + 3 = 18, maka 7 + 4 = ?", options: ["22", "23", "24", "25"], answer: "22"},
+    {question: "Jika buku lebih berat dari pena, dan pena lebih berat dari kertas, maka yang terberat adalah?", options: ["Buku", "Pena", "Kertas", "Semua sama"], answer: "Buku"},
+    {question: "Jika 1 = X, 2 = Y, 3 = Z, maka 231 = ?", options: ["YZX", "XYZ", "ZYX", "XZY"], answer: "YZX"},
+    {question: "Jika hari ini Selasa, tiga hari lalu adalah hari?", options: ["Sabtu", "Minggu", "Senin", "Jumat"], answer: "Sabtu"},
+    {question: "Urutan bilangan: 3, 6, 12, 24, ___. Bilangan berikutnya adalah?", options: ["48", "50", "52", "54"], answer: "48"},
+    {question: "Jika semua burung memiliki sayap, dan elang adalah burung, maka elang memiliki?", options: ["Sayap", "Tanduk", "Sirip", "Kaki"], answer: "Sayap"},
+    {question: "Jika 2 buah mangga sama dengan 3 buah apel, berapa apel yang setara dengan 4 mangga?", options: ["6", "7", "8", "9"], answer: "6"},
+    {question: "Urutan bilangan: 1, 2, 4, 7, ___. Bilangan berikutnya adalah?", options: ["11", "12", "13", "14"], answer: "11"},
+    {question: "Jika A = 3, B = 6, C = 9, maka nilai 'CBA' adalah?", options: ["18", "19", "20", "21"], answer: "18"},
+    {question: "Jika hari ini Kamis, empat hari lagi adalah hari?", options: ["Senin", "Selasa", "Rabu", "Minggu"], answer: "Senin"},
+    {question: "Jika semua kucing suka ikan, dan Momo adalah kucing, maka Momo suka?", options: ["Ikan", "Daging", "Sayur", "Buah"], answer: "Ikan"},
+    {question: "Urutan bilangan: 10, 20, 30, 40, ___. Bilangan berikutnya adalah?", options: ["50", "60", "70", "80"], answer: "50"},
+    {question: "Jika 4 + 3 = 25, 5 + 4 = 41, maka 6 + 5 = ?", options: ["61", "62", "63", "64"], answer: "61"},
+    {question: "Jika apel lebih manis dari jeruk, dan jeruk lebih manis dari lemon, maka yang paling manis adalah?", options: ["Apel", "Jeruk", "Lemon", "Semua sama"], answer: "Apel"},
+    {question: "Jika 1 = P, 2 = Q, 3 = R, maka 123 = ?", options: ["PQR", "QPR", "RQP", "PRQ"], answer: "PQR"},
+    {question: "Jika hari ini Minggu, kemarin lusa adalah hari?", options: ["Jumat", "Sabtu", "Kamis", "Rabu"], answer: "Jumat"},
+    {question: "Urutan bilangan: 2, 6, 18, 54, ___. Bilangan berikutnya adalah?", options: ["162", "163", "164", "165"], answer: "162"},
+    {question: "Jika semua anjing setia, dan Max adalah anjing, maka Max adalah?", options: ["Setia", "Pemberani", "Cerdas", "Liar"], answer: "Setia"},
+    {question: "Jika 3 buah jeruk sama dengan 2 buah mangga, berapa mangga yang setara dengan 9 jeruk?", options: ["6", "7", "8", "9"], answer: "6"},
+    {question: "Urutan bilangan: 4, 8, 16, 32, ___. Bilangan berikutnya adalah?", options: ["64", "65", "66", "67"], answer: "64"},
+    {question: "Jika A = 4, B = 8, C = 12, maka nilai 'ABC' adalah?", options: ["24", "25", "26", "27"], answer: "24"},
+    {question: "Jika hari ini Sabtu, lima hari lagi adalah hari?", options: ["Kamis", "Jumat", "Rabu", "Selasa"], answer: "Kamis"},
+    {question: "Jika semua burung bernyanyi, dan merpati adalah burung, maka merpati?", options: ["Bernyanyi", "Berenang", "Berlari", "Melompat"], answer: "Bernyanyi"},
+    {question: "Urutan bilangan: 1, 5, 13, 29, ___. Bilangan berikutnya adalah?", options: ["61", "62", "63", "64"], answer: "61"},
+    {question: "Jika 6 + 2 = 16, 7 + 3 = 22, maka 8 + 4 = ?", options: ["28", "29", "30", "31"], answer: "28"},
+    {question: "Jika buku lebih tebal dari majalah, dan majalah lebih tebal dari koran, maka yang paling tebal adalah?", options: ["Buku", "Majalah", "Koran", "Semua sama"], answer: "Buku"},
+    {question: "Jika 1 = M, 2 = N, 3 = O, maka 312 = ?", options: ["OMN", "MNO", "NOM", "ONM"], answer: "OMN"},
+    {question: "Jika hari ini Senin, tujuh hari lagi adalah hari?", options: ["Senin", "Selasa", "Rabu", "Minggu"], answer: "Senin"},
+    {question: "Urutan bilangan: 3, 9, 27, 81, ___. Bilangan berikutnya adalah?", options: ["243", "244", "245", "246"], answer: "243"},
+    {question: "Jika semua ikan memiliki insang, dan salmon adalah ikan, maka salmon memiliki?", options: ["Insang", "Sayap", "Kaki", "Tanduk"], answer: "Insang"},
+    {question: "Jika 2 buah apel sama dengan 5 buah jeruk, berapa jeruk yang setara dengan 4 apel?", options: ["10", "11", "12", "13"], answer: "10"},
+    {question: "Urutan bilangan: 2, 4, 8, 16, ___. Bilangan berikutnya adalah?", options: ["32", "33", "34", "35"], answer: "32"},
+
+    // Pengetahuan Kuantitatif (50 Soal)
+    {question: "Berapa hasil dari 5 + 7?", options: ["12", "10", "14", "15"], answer: "12"},
+    {question: "Jika x = 4, berapa nilai 3x + 2?", options: ["14", "12", "16", "18"], answer: "14"},
+    {question: "Berapa hasil dari 15 - 6?", options: ["9", "8", "10", "11"], answer: "9"},
+    {question: "Jika 2x = 10, berapa nilai x?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Berapa hasil dari 4 × 3?", options: ["12", "10", "14", "16"], answer: "12"},
+    {question: "Jika y = 6, berapa nilai y ÷ 2?", options: ["3", "2", "4", "5"], answer: "3"},
+    {question: "Berapa hasil dari 25 + 15?", options: ["40", "35", "45", "50"], answer: "40"},
+    {question: "Jika 3a = 12, berapa nilai a?", options: ["4", "3", "5", "6"], answer: "4"},
+    {question: "Berapa hasil dari 20 ÷ 5?", options: ["4", "5", "6", "7"], answer: "4"},
+    {question: "Jika x + 5 = 12, berapa nilai x?", options: ["7", "6", "8", "9"], answer: "7"},
+    {question: "Berapa hasil dari 6 × 4?", options: ["24", "20", "28", "30"], answer: "24"},
+    {question: "Jika 2y + 3 = 11, berapa nilai y?", options: ["4", "3", "5", "6"], answer: "4"},
+    {question: "Berapa hasil dari 50 - 25?", options: ["25", "20", "30", "35"], answer: "25"},
+    {question: "Jika 4x = 16, berapa nilai x?", options: ["4", "3", "5", "6"], answer: "4"},
+    {question: "Berapa hasil dari 8 + 9?", options: ["17", "16", "18", "19"], answer: "17"},
+    {question: "Jika x - 3 = 7, berapa nilai x?", options: ["10", "9", "11", "12"], answer: "10"},
+    {question: "Berapa hasil dari 7 × 5?", options: ["35", "30", "40", "45"], answer: "35"},
+    {question: "Jika 5a = 25, berapa nilai a?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Berapa hasil dari 30 ÷ 6?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Jika x + 7 = 15, berapa nilai x?", options: ["8", "7", "9", "10"], answer: "8"},
+    {question: "Berapa hasil dari 9 × 3?", options: ["27", "24", "30", "33"], answer: "27"},
+    {question: "Jika 3y - 6 = 12, berapa nilai y?", options: ["6", "5", "7", "8"], answer: "6"},
+    {question: "Berapa hasil dari 40 + 20?", options: ["60", "55", "65", "70"], answer: "60"},
+    {question: "Jika 6x = 24, berapa nilai x?", options: ["4", "3", "5", "6"], answer: "4"},
+    {question: "Berapa hasil dari 18 - 9?", options: ["9", "8", "10", "11"], answer: "9"},
+    {question: "Jika x ÷ 3 = 4, berapa nilai x?", options: ["12", "10", "14", "16"], answer: "12"},
+    {question: "Berapa hasil dari 5 × 6?", options: ["30", "25", "35", "40"], answer: "30"},
+    {question: "Jika 2a + 4 = 12, berapa nilai a?", options: ["4", "3", "5", "6"], answer: "4"},
+    {question: "Berapa hasil dari 45 ÷ 9?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Jika x - 4 = 8, berapa nilai x?", options: ["12", "11", "13", "14"], answer: "12"},
+    {question: "Berapa hasil dari 10 × 4?", options: ["40", "35", "45", "50"], answer: "40"},
+    {question: "Jika 4y = 20, berapa nilai y?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Berapa hasil dari 60 - 30?", options: ["30", "25", "35", "40"], answer: "30"},
+    {question: "Jika x + 6 = 14, berapa nilai x?", options: ["8", "7", "9", "10"], answer: "8"},
+    {question: "Berapa hasil dari 8 × 5?", options: ["40", "35", "45", "50"], answer: "40"},
+    {question: "Jika 3a - 3 = 12, berapa nilai a?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Berapa hasil dari 24 ÷ 4?", options: ["6", "5", "7", "8"], answer: "6"},
+    {question: "Jika x - 5 = 10, berapa nilai x?", options: ["15", "14", "16", "17"], answer: "15"},
+    {question: "Berapa hasil dari 12 + 8?", options: ["20", "18", "22", "24"], answer: "20"},
+    {question: "Jika 5x = 30, berapa nilai x?", options: ["6", "5", "7", "8"], answer: "6"},
+    {question: "Berapa hasil dari 9 × 4?", options: ["36", "32", "40", "44"], answer: "36"},
+    {question: "Jika 2y + 5 = 15, berapa nilai y?", options: ["5", "4", "6", "7"], answer: "5"},
+    {question: "Berapa hasil dari 70 - 40?", options: ["30", "25", "35", "40"], answer: "30"},
+    {question: "Jika x ÷ 4 = 5, berapa nilai x?", options: ["20", "18", "22", "24"], answer: "20"},
+    {question: "Berapa hasil dari 6 × 7?", options: ["42", "40", "44", "46"], answer: "42"},
+    {question: "Jika 3a + 6 = 15, berapa nilai a?", options: ["3", "4", "5", "6"], answer: "3"},
+    {question: "Berapa hasil dari 36 ÷ 6?", options: ["6", "5", "7", "8"], answer: "6"},
+    {question: "Jika x + 8 = 20, berapa nilai x?", options: ["12", "11", "13", "14"], answer: "12"},
+    {question: "Berapa hasil dari 15 × 3?", options: ["45", "40", "50", "55"], answer: "45"},
+    {question: "Jika 4y - 8 = 12, berapa nilai y?", options: ["5", "4", "6", "7"], answer: "5"}
+            ];
+    
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedAnswer = null;
+
+    // DOM Elements
+    const questionEl = document.getElementById('question');
+    const optionsListEl = document.getElementById('options-list');
+    const submitBtn = document.getElementById('submit-btn');
+    const resultEl = document.getElementById('result');
+    const scoreboardEl = document.getElementById('scoreboard');
+    const restartBtn = document.getElementById('restart-btn');
+    const musicControlBtn = document.getElementById('music-control-btn');
+    const backgroundMusic = document.getElementById('background-music');
+    const correctSound = document.getElementById('correct-sound');
+    const incorrectSound = document.getElementById('incorrect-sound');
+    const progressBar = document.getElementById('progress-bar');
+    const questionCard = document.getElementById('question-card');
+
+    // Initialize quiz
+    function initQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      loadQuestion();
+      backgroundMusic.play().catch(e => console.log("Autoplay prevented"));
+      updateMusicButton();
+    }
+
+    // Load current question
+    function loadQuestion() {
+      resetState();
+      const currentData = questions[currentQuestionIndex];
+      
+      questionEl.textContent = currentData.question;
+      
+      currentData.options.forEach((option, index) => {
+        const li = document.createElement('li');
+        li.className = 'option-item';
+        li.innerHTML = `
+          <input type="radio" id="option${index}" name="answer" value="${option}">
+          <label for="option${index}">${option}</label>
+        `;
+        optionsListEl.appendChild(li);
+        
+        const radioBtn = li.querySelector('input');
+        radioBtn.addEventListener('change', (e) => {
+          selectedAnswer = e.target.value;
+          submitBtn.disabled = false;
+        });
+      });
+      
+      updateProgress();
+      updateScoreboard();
+      
+      // Apply 3D flip animation
+      questionCard.classList.add('card-flip');
+      setTimeout(() => questionCard.classList.remove('card-flip'), 1000);
+    }
+
+    // Reset question state
+    function resetState() {
+      resultEl.textContent = '';
+      resultEl.className = '';
+      optionsListEl.innerHTML = '';
+      submitBtn.disabled = true;
+      selectedAnswer = null;
+      restartBtn.style.display = 'none';
+    }
+
+    // Update progress bar
+    function updateProgress() {
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      progressBar.style.width = `${progress}%`;
+    }
+
+    // Update scoreboard
+    function updateScoreboard(final = false) {
+      if (final) {
+        scoreboardEl.innerHTML = `
+          <div style="font-size: 1.3rem; margin-bottom: 10px; color: var(--accent); font-weight: 600;">
+            Quiz Selesai!
+          </div>
+          Skor Anda: <span style="color: var(--accent); font-weight: 600;">${score}</span> dari ${questions.length}<br>
+          (${Math.round((score / questions.length) * 100)}%)
+        `;
+      } else {
+        scoreboardEl.textContent = `Pertanyaan ${currentQuestionIndex + 1} dari ${questions.length} | Skor: ${score}`;
+      }
+    }
+
+    // Submit answer
+    submitBtn.addEventListener('click', () => {
+      if (!selectedAnswer) return;
+      
+      const currentQuestion = questions[currentQuestionIndex];
+      const isCorrect = selectedAnswer === currentQuestion.answer;
+      
+      // Play sound effect
+      if (isCorrect) {
+        correctSound.play();
+        resultEl.textContent = '✓ Jawaban Benar!';
+        resultEl.className = 'correct';
+        score++;
+      } else {
+        incorrectSound.play();
+        resultEl.innerHTML = `✗ Jawaban Salah!<br>Jawaban benar: <span style="font-weight:600">${currentQuestion.answer}</span>`;
+        resultEl.className = 'incorrect';
+      }
+      
+      // Disable all options
+      document.querySelectorAll('input[name="answer"]').forEach(input => {
+        input.disabled = true;
+      });
+      
+      submitBtn.disabled = true;
+      
+      // Move to next question or finish quiz
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          loadQuestion();
+        } else {
+          finishQuiz();
+        }
+      }, 2000);
+    });
+
+    // Finish quiz
+    function finishQuiz() {
+      questionEl.textContent = 'Quiz Selesai!';
+      optionsListEl.innerHTML = '';
+      submitBtn.style.display = 'none';
+      updateScoreboard(true);
+      restartBtn.style.display = 'block';
+      
+      // Create confetti effect
+      createConfetti();
+    }
+
+    // Restart quiz
+    restartBtn.addEventListener('click', () => {
+      currentQuestionIndex = 0;
+      score = 0;
+      submitBtn.style.display = 'block';
+      loadQuestion();
+    });
+
+    // Music control
+    musicControlBtn.addEventListener('click', () => {
+      if (backgroundMusic.paused) {
+        backgroundMusic.play();
+      } else {
+        backgroundMusic.pause();
+      }
+      updateMusicButton();
+    });
+
+    function updateMusicButton() {
+      if (backgroundMusic.paused) {
+        musicControlBtn.innerHTML = '🔇';
+        musicControlBtn.title = "Nyalakan Musik";
+      } else {
+        musicControlBtn.innerHTML = '🎵';
+        musicControlBtn.title = "Matikan Musik";
+      }
+    }
+
+    // Simple confetti effect
+    function createConfetti() {
+      const colors = ['#d4af37', '#4a4e8c', '#ffffff', '#e53935', '#4caf50'];
+      
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.style.position = 'fixed';
+        confetti.style.width = '8px';
+        confetti.style.height = '8px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.borderRadius = '50%';
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.top = '-10px';
+        confetti.style.zIndex = '1000';
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        
+        document.body.appendChild(confetti);
+        
+        const animationDuration = Math.random() * 3 + 2;
+        
+        confetti.animate([
+          { top: '-10px', opacity: 1 },
+          { top: `${Math.random() * 100 + 50}vh`, opacity: 0 }
+        ], {
+          duration: animationDuration * 1000,
+          easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)',
+          fill: 'forwards'
+        });
+        
+        setTimeout(() => confetti.remove(), animationDuration * 1000);
+      }
+    }
+
+    // Start the quiz
+    initQuiz();
+  </script> 
+ </body>
+</html>
